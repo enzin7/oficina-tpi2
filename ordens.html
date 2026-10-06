@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Abertura de Ordem de Serviço | Oficina Torque Certo</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <header>
+    <h1>Oficina Torque Certo — Sistema Administrativo</h1>
+  </header>
+  <nav>
+    <ul>
+        <li><a href="index.html">Início</a></li>
+        <li><a href="clientes.html">Clientes</a></li>
+        <li><a href="veiculos.html">Veículos</a></li>
+        <li><a href="mecanicos.html">Mecânicos</a></li>
+        <li><a href="pecas.html">Peças</a></li>
+        <li><a href="ordens.html" class="ativo">Ordens de Serviço</a></li>
+    </ul>
+  </nav>
+  <main>
+    <h2>Abertura de Ordem de Serviço</h2>
+    <p>Liga cliente, veículo, mecânico, serviço e peças em um orçamento.</p>
+    <form data-endpoint="php/ordem.php" novalidate>
+      <label>CPF do cliente<input type="text" name="cpf_cliente" required></label>
+      <label>Placa do veículo<input type="text" name="placa" required></label>
+      <label>Mecânico responsável<input type="text" name="mecanico" required></label>
+      <label>Tipo de serviço
+        <select name="servico" required>
+          <option value="">Selecione...</option>
+          <option value="revisao">Revisão preventiva (R$ 120/h)</option>
+          <option value="freios">Troca de freios (R$ 140/h)</option>
+          <option value="suspensao">Suspensão (R$ 150/h)</option>
+          <option value="eletrica">Elétrica (R$ 160/h)</option>
+          <option value="motor">Retífica de motor (R$ 200/h)</option>
+        </select>
+      </label>
+      <label>Data de entrada<input type="date" name="data_entrada" required></label>
+      <label>Previsão de entrega<input type="date" name="data_previsao" required></label>
+      <label>Horas de mão de obra<input type="number" name="horas" step="0.5" min="0" required></label>
+      <label>Valor das peças (R$)<input type="number" name="valor_pecas" step="0.01" min="0" required></label>
+      <label>Desconto (%)<input type="number" name="desconto" step="0.5" min="0" max="15" value="0"></label>
+      <label class="inteiro">Relato do problema<textarea name="relato"></textarea></label>
+      <button type="submit">Enviar</button>
+    </form>
+    <div id="resultado"></div>
+    <a class="voltar" href="index.html">&larr; Voltar para a página inicial</a>
+  </main>
+  <footer>TPI II — Trabalho Momento I · Enzo Mota Torquette e Higor Costa Valle Marquez Chagas</footer>
+  <script src="js/app.js"></script>
+</body>
+</html>
