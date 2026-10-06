@@ -5,8 +5,8 @@ Pequeno sistema administrativo para uma oficina mecânica.
 **Grupo**
 | Aluno | RA | Usuário GitHub | Branch |
 |---|---|---|---|
-| Enzo Mota Torquette | 5175090 | `USUARIO_ENZO` | `branch-aluno-1` |
-| Higor Costa Valle Marquez Chagas | 5174284 | `USUARIO_HIGOR` | `branch-aluno-2` |
+| Enzo Mota Torquette | 5175090 | `enzin7` | `branch-aluno-1` |
+| Higor Costa Valle Marquez Chagas | 5174284 | `HigorMarquezChagas` | `branch-aluno-2` |
 
 ## Como executar
 ```bash
