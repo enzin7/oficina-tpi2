@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cadastro de Peça | Oficina Torque Certo</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <header>
+    <h1>Oficina Torque Certo — Sistema Administrativo</h1>
+  </header>
+  <nav>
+    <ul>
+        <li><a href="index.html">Início</a></li>
+        <li><a href="clientes.html">Clientes</a></li>
+        <li><a href="veiculos.html">Veículos</a></li>
+        <li><a href="mecanicos.html">Mecânicos</a></li>
+        <li><a href="pecas.html" class="ativo">Peças</a></li>
+        <li><a href="ordens.html">Ordens de Serviço</a></li>
+    </ul>
+  </nav>
+  <main>
+    <h2>Cadastro de Peça</h2>
+    <p>Itens do estoque usados nas ordens de serviço.</p>
+    <form data-endpoint="php/peca.php" novalidate>
+      <label>Código<input type="text" name="codigo" placeholder="PST-0042" required></label>
+      <label>Fabricante<input type="text" name="fabricante" required></label>
+      <label class="inteiro">Descrição<input type="text" name="descricao" required></label>
+      <label>Preço de custo (R$)<input type="number" name="preco_custo" step="0.01" min="0" required></label>
+      <label>Margem de lucro (%)<input type="number" name="margem" step="0.1" min="0" required></label>
+      <label>Quantidade em estoque<input type="number" name="quantidade" min="0" required></label>
+      <label>Estoque mínimo<input type="number" name="estoque_minimo" min="0" required></label>
+      <button type="submit">Enviar</button>
+    </form>
+    <div id="resultado"></div>
+    <a class="voltar" href="index.html">&larr; Voltar para a página inicial</a>
+  </main>
+  <footer>TPI II — Trabalho Momento I · Enzo Mota Torquette e Higor Costa Valle Marquez Chagas</footer>
+  <script src="js/app.js"></script>
+</body>
+</html>
