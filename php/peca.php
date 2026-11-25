@@ -2,6 +2,7 @@
 // Recebe o cadastro de PEÇA do estoque (tabela: peca).
 require __DIR__ . '/funcoes.php';
 exigirPost();
+$usuario = exigirLogin();
 
 $erros = validarObrigatorios([
     'codigo' => 'Código', 'descricao' => 'Descrição', 'fabricante' => 'Fabricante',
@@ -25,6 +26,12 @@ if ($minimo !== '' && !ctype_digit($minimo)) $erros[] = 'Estoque mínimo deve se
 
 if ($erros) responder(false, $erros);
 
+$id = inserir(
+    'INSERT INTO peca (codigo, descricao, fabricante, preco_custo, margem, quantidade, estoque_minimo) VALUES (?, ?, ?, ?, ?, ?, ?)',
+    [$codigo, campo('descricao'), campo('fabricante'), $custo, $margem, (int) $qtd, (int) $minimo],
+    'Já existe uma peça cadastrada com este código.'
+);
+
 // Lógica adicional: preço de venda pela margem e alerta de reposição.
 $precoVenda = $custo * (1 + $margem / 100);
 $situacao = (int) $qtd <= (int) $minimo
@@ -32,6 +39,7 @@ $situacao = (int) $qtd <= (int) $minimo
     : 'Estoque OK';
 
 responder(true, [
+    'ID' => $id,
     'Código' => $codigo,
     'Descrição' => campo('descricao'),
     'Fabricante' => campo('fabricante'),
@@ -39,4 +47,4 @@ responder(true, [
     'Preço de venda' => moeda($precoVenda),
     'Lucro por unidade' => moeda($precoVenda - $custo),
     'Situação do estoque' => $situacao,
-], 200, 'Peça validada com sucesso!');
+], 200, 'Peça cadastrada com sucesso!');

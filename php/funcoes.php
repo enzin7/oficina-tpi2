@@ -1,6 +1,38 @@
 <?php
 // Funções auxiliares usadas por todos os scripts de cadastro.
 header('Content-Type: application/json; charset=utf-8');
+require_once __DIR__ . '/conexao.php';
+
+// ---------- Sessão de login ----------
+function iniciarSessao(): void
+{
+    if (session_status() === PHP_SESSION_NONE) {
+        session_set_cookie_params([
+            'lifetime' => 0,          // expira ao fechar o navegador
+            'path' => '/',
+            'httponly' => true,       // cookie não acessível pelo JavaScript
+            'samesite' => 'Lax',
+        ]);
+        session_name('OFICINASESSID');
+        session_start();
+    }
+}
+
+// Bloqueia o script se não houver usuário logado. Expira após 30 min parado.
+function exigirLogin(): array
+{
+    iniciarSessao();
+    if (empty($_SESSION['usuario'])) {
+        responder(false, ['Sessão expirada ou não iniciada. Faça login.'], 401);
+    }
+    if (time() - ($_SESSION['ultimo_acesso'] ?? 0) > 30 * 60) {
+        session_unset();
+        session_destroy();
+        responder(false, ['Sessão expirada por inatividade. Faça login novamente.'], 401);
+    }
+    $_SESSION['ultimo_acesso'] = time();
+    return $_SESSION['usuario'];
+}
 
 function exigirPost(): void
 {
@@ -85,7 +117,7 @@ function normalizarPlaca(string $placa): string
 }
 
 // Envia a resposta JSON para o JavaScript e encerra o script.
-function responder(bool $sucesso, array $conteudo, int $status = 200, string $mensagem = ''): void
+function responder(bool $sucesso, array $conteudo, int $status = 200, string $mensagem = ''): never
 {
     http_response_code($sucesso ? 200 : ($status === 200 ? 422 : $status));
     $saida = ['sucesso' => $sucesso];

@@ -2,6 +2,7 @@
 // Recebe o cadastro de CLIENTE (tabela: cliente).
 require __DIR__ . '/funcoes.php';
 exigirPost();
+$usuario = exigirLogin();
 
 $erros = validarObrigatorios([
     'nome' => 'Nome completo', 'cpf' => 'CPF', 'telefone' => 'Telefone',
@@ -29,12 +30,20 @@ if (campo('data_nascimento') !== '' && !$nascimento) {
 
 if ($erros) responder(false, $erros);
 
+$nome = mb_convert_case(campo('nome'), MB_CASE_TITLE, 'UTF-8');
+$id = inserir(
+    'INSERT INTO cliente (nome, cpf, data_nascimento, telefone, email, cidade, origem) VALUES (?, ?, ?, ?, ?, ?, ?)',
+    [$nome, apenasDigitos($cpf), campo('data_nascimento'), $telefone, strtolower($email), campo('cidade'), campo('origem') ?: null],
+    'Já existe um cliente cadastrado com este CPF.'
+);
+
 responder(true, [
-    'Nome' => mb_convert_case(campo('nome'), MB_CASE_TITLE, 'UTF-8'),
+    'Código' => $id,
+    'Nome' => $nome,
     'CPF' => formatarCpf($cpf),
     'Idade' => "$idade anos",
     'Telefone' => $telefone,
     'E-mail' => strtolower($email),
     'Cidade' => campo('cidade'),
     'Observação' => campo('cidade') === 'Uberlândia' ? 'Cliente local: elegível para leva-e-traz grátis.' : 'Cliente de outra cidade.',
-], 200, 'Cliente validado com sucesso!');
+], 200, 'Cliente cadastrado com sucesso!');

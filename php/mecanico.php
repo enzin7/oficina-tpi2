@@ -2,6 +2,7 @@
 // Recebe o cadastro de MECÂNICO (tabela: mecanico).
 require __DIR__ . '/funcoes.php';
 exigirPost();
+$usuario = exigirLogin();
 
 $erros = validarObrigatorios([
     'nome' => 'Nome', 'cpf' => 'CPF', 'especialidade' => 'Especialidade',
@@ -25,6 +26,12 @@ if (campo('data_admissao') !== '' && (!$admissao || $admissao > new DateTime('to
 
 if ($erros) responder(false, $erros);
 
+$id = inserir(
+    'INSERT INTO mecanico (nome, cpf, telefone, especialidade, valor_hora, data_admissao) VALUES (?, ?, ?, ?, ?, ?)',
+    [campo('nome'), apenasDigitos($cpf), $telefone, campo('especialidade'), $valorHora, campo('data_admissao')],
+    'Já existe um mecânico cadastrado com este CPF.'
+);
+
 // Lógica adicional: tempo de casa e nível (Júnior / Pleno / Sênior).
 $anos = $admissao->diff(new DateTime('today'))->y;
 if ($anos < 2) {
@@ -36,6 +43,7 @@ if ($anos < 2) {
 }
 
 responder(true, [
+    'Código' => $id,
     'Nome' => campo('nome'),
     'CPF' => formatarCpf($cpf),
     'Especialidade' => campo('especialidade'),
@@ -43,4 +51,4 @@ responder(true, [
     'Nível' => $nivel,
     'Valor hora' => moeda($valorHora),
     'Estimativa mensal (176 h)' => moeda($valorHora * 176),
-], 200, 'Mecânico validado com sucesso!');
+], 200, 'Mecânico cadastrado com sucesso!');

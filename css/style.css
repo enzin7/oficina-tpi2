@@ -23,3 +23,16 @@ button:hover { background: #f0a500; color: #1f2933; }
 .voltar { display: inline-block; margin-top: 16px; color: #1f3a5f; }
 footer { text-align: center; font-size: .8rem; color: #616e7c; padding: 24px; }
 @media (max-width: 600px) { form { grid-template-columns: 1fr; } }
+
+/* Login e sessão */
+body.protegida main, body.protegida nav { visibility: hidden; } /* esconde até confirmar o login */
+main.login { max-width: 380px; }
+main.login form { grid-template-columns: 1fr; }
+nav li.usuario { margin-left: auto; display: flex; align-items: center; color: #fff; }
+nav li.usuario span { padding: 10px 8px; font-size: .9rem; }
+
+/* Listagem de registros do banco */
+.lista { margin-top: 24px; overflow-x: auto; }
+.lista table { width: 100%; border-collapse: collapse; background: #fff; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,.1); font-size: .9rem; }
+.lista th, .lista td { padding: 8px 10px; text-align: left; border-bottom: 1px solid #e4e7eb; }
+.lista th { background: #1f3a5f; color: #fff; }
