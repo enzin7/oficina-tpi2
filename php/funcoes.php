@@ -1,24 +1,17 @@
 <?php
-// Funções auxiliares usadas por todos os scripts de cadastro.
 header('Content-Type: application/json; charset=utf-8');
 require_once __DIR__ . '/conexao.php';
 
-// ---------- Sessão de login ----------
 function iniciarSessao(): void
 {
     if (session_status() === PHP_SESSION_NONE) {
-        session_set_cookie_params([
-            'lifetime' => 0,          // expira ao fechar o navegador
-            'path' => '/',
-            'httponly' => true,       // cookie não acessível pelo JavaScript
-            'samesite' => 'Lax',
-        ]);
+        session_set_cookie_params(['lifetime' => 0, 'path' => '/', 'httponly' => true, 'samesite' => 'Lax']);
         session_name('OFICINASESSID');
         session_start();
     }
 }
 
-// Bloqueia o script se não houver usuário logado. Expira após 30 min parado.
+// Encerra com 401 se não houver login ou se passou 30 min sem uso.
 function exigirLogin(): array
 {
     iniciarSessao();
@@ -41,13 +34,19 @@ function exigirPost(): void
     }
 }
 
-// Lê um campo do $_POST, removendo espaços extras.
 function campo(string $nome): string
 {
-    return trim($_POST[$nome] ?? '');
+    $valor = $_POST[$nome] ?? '';
+    return is_string($valor) ? trim($valor) : '';
 }
 
-// Verifica se os campos obrigatórios foram preenchidos e devolve a lista de erros.
+// Id enviado pelo formulário quando é edição (vazio = novo cadastro).
+function idEdicao(): ?int
+{
+    $id = campo('id');
+    return ctype_digit($id) ? (int) $id : null;
+}
+
 function validarObrigatorios(array $campos): array
 {
     $erros = [];
@@ -64,7 +63,7 @@ function apenasDigitos(string $valor): string
     return preg_replace('/\D/', '', $valor);
 }
 
-// Converte "1.234,56" ou "1234.56" em número.
+// Aceita "1.234,56" ou "1234.56".
 function numero(string $valor): ?float
 {
     if ($valor === '') return null;
@@ -83,7 +82,6 @@ function dataValida(string $data): ?DateTime
     return ($d && $d->format('Y-m-d') === $data) ? $d : null;
 }
 
-// Validação de CPF pelo cálculo dos dois dígitos verificadores.
 function cpfValido(string $cpf): bool
 {
     $cpf = apenasDigitos($cpf);
@@ -105,7 +103,7 @@ function formatarCpf(string $cpf): string
     return substr($c, 0, 3) . '.' . substr($c, 3, 3) . '.' . substr($c, 6, 3) . '-' . substr($c, 9, 2);
 }
 
-// Placa no padrão antigo (ABC1234) ou Mercosul (ABC1D23).
+// Padrão antigo (ABC1234) ou Mercosul (ABC1D23).
 function placaValida(string $placa): bool
 {
     return (bool) preg_match('/^[A-Z]{3}[0-9][A-Z0-9][0-9]{2}$/', $placa);
@@ -116,9 +114,20 @@ function normalizarPlaca(string $placa): string
     return strtoupper(preg_replace('/[^A-Za-z0-9]/', '', $placa));
 }
 
-// Envia a resposta JSON para o JavaScript e encerra o script.
-function responder(bool $sucesso, array $conteudo, int $status = 200, string $mensagem = ''): never
+// Devolve ao estoque as peças de uma OS e remove os itens dela.
+function devolverPecasDaOrdem(int $ordemId): void
 {
+    executar(
+        'UPDATE peca p SET quantidade = p.quantidade + i.quantidade
+         FROM ordem_servico_peca i WHERE i.peca_id = p.id AND i.ordem_servico_id = ?',
+        [$ordemId]
+    );
+    executar('DELETE FROM ordem_servico_peca WHERE ordem_servico_id = ?', [$ordemId]);
+}
+
+function responder(bool $sucesso, array $conteudo, int $status = 200, string $mensagem = ''): void
+{
+    if (conexaoAberta() && conexao()->inTransaction()) conexao()->rollBack();
     http_response_code($sucesso ? 200 : ($status === 200 ? 422 : $status));
     $saida = ['sucesso' => $sucesso];
     if ($sucesso) {

@@ -1,5 +1,4 @@
 <?php
-// Encerra a sessão do usuário.
 require __DIR__ . '/funcoes.php';
 exigirPost();
 iniciarSessao();

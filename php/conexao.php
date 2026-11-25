@@ -1,18 +1,17 @@
 <?php
-// Conexão com o PostgreSQL via PDO. Ajuste os dados abaixo conforme o seu ambiente
-// (na instalação padrão o usuário é "postgres" e a senha é a definida no instalador).
 const DB_HOST = 'localhost';
 const DB_PORTA = '5432';
 const DB_NOME = 'oficina';
 const DB_USUARIO = 'postgres';
 const DB_SENHA = 'postgres';
 
+$GLOBALS['pdo'] = null;
+
 function conexao(): PDO
 {
-    static $pdo = null;
-    if ($pdo === null) {
+    if ($GLOBALS['pdo'] === null) {
         try {
-            $pdo = new PDO(
+            $GLOBALS['pdo'] = new PDO(
                 'pgsql:host=' . DB_HOST . ';port=' . DB_PORTA . ';dbname=' . DB_NOME,
                 DB_USUARIO,
                 DB_SENHA,
@@ -22,32 +21,52 @@ function conexao(): PDO
                     PDO::ATTR_EMULATE_PREPARES => false,
                 ]
             );
-            $pdo->exec("SET client_encoding TO 'UTF8'");
+            $GLOBALS['pdo']->exec("SET client_encoding TO 'UTF8'");
         } catch (PDOException $e) {
             responder(false, ['Não foi possível conectar ao banco de dados. Verifique o php/conexao.php.'], 500);
         }
     }
-    return $pdo;
+    return $GLOBALS['pdo'];
 }
 
-// Executa um INSERT ... RETURNING id e devolve o id gerado. Trata chave duplicada (UNIQUE).
-function inserir(string $sql, array $parametros, string $msgDuplicado): int
+function conexaoAberta(): bool
 {
-    try {
-        $stmt = conexao()->prepare($sql . ' RETURNING id');
-        $stmt->execute($parametros);
-        return (int) $stmt->fetchColumn();
-    } catch (PDOException $e) {
-        // 23505 = unique_violation no PostgreSQL
-        if ($e->getCode() === '23505') responder(false, [$msgDuplicado], 409);
-        responder(false, ['Erro ao gravar no banco de dados.'], 500);
-    }
+    return $GLOBALS['pdo'] !== null;
 }
 
-// Busca uma única linha (ou null).
-function buscar(string $sql, array $parametros = []): ?array
+function executar(string $sql, array $parametros = []): PDOStatement
 {
     $stmt = conexao()->prepare($sql);
     $stmt->execute($parametros);
-    return $stmt->fetch() ?: null;
+    return $stmt;
+}
+
+function buscar(string $sql, array $parametros = []): ?array
+{
+    return executar($sql, $parametros)->fetch() ?: null;
+}
+
+// INSERT quando $id é null, UPDATE caso contrário. Devolve o id do registro.
+// $tabela e as chaves de $dados vêm sempre do código, nunca do usuário.
+function salvar(string $tabela, array $dados, ?int $id, string $msgDuplicado): int
+{
+    $colunas = array_keys($dados);
+    $valores = array_values($dados);
+
+    if ($id === null) {
+        $sql = "INSERT INTO $tabela (" . implode(', ', $colunas) . ') VALUES ('
+            . implode(', ', array_fill(0, count($colunas), '?')) . ') RETURNING id';
+    } else {
+        $sql = "UPDATE $tabela SET " . implode(' = ?, ', $colunas) . ' = ? WHERE id = ? RETURNING id';
+        $valores[] = $id;
+    }
+
+    try {
+        $novoId = executar($sql, $valores)->fetchColumn();
+    } catch (PDOException $e) {
+        if ($e->getCode() === '23505') responder(false, [$msgDuplicado], 409);
+        responder(false, ['Erro ao gravar no banco de dados.'], 500);
+    }
+    if ($novoId === false) responder(false, ['Registro não encontrado.'], 404);
+    return (int) $novoId;
 }

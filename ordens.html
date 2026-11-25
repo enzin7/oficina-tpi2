@@ -22,7 +22,7 @@
   </nav>
   <main>
     <h2>Abertura de Ordem de Serviço</h2>
-    <p>Liga cliente, veículo, mecânico, serviço e peças em um orçamento.</p>
+    <p>Liga cliente, veículo, mecânico, serviço e peças do estoque em um orçamento. As peças são baixadas do estoque automaticamente.</p>
     <form data-endpoint="php/ordem.php" novalidate>
       <label>CPF do cliente<input type="text" name="cpf_cliente" required></label>
       <label>Placa do veículo<input type="text" name="placa" required></label>
@@ -39,8 +39,18 @@
       <label>Data de entrada<input type="date" name="data_entrada" required></label>
       <label>Previsão de entrega<input type="date" name="data_previsao" required></label>
       <label>Horas de mão de obra<input type="number" name="horas" step="0.5" min="0" required></label>
-      <label>Valor das peças (R$)<input type="number" name="valor_pecas" step="0.01" min="0" required></label>
       <label>Desconto (%)<input type="number" name="desconto" step="0.5" min="0" max="15" value="0"></label>
+      <fieldset class="inteiro" id="pecas-os">
+        <legend>Peças utilizadas</legend>
+        <div class="linha-peca">
+          <select id="peca-select" data-opcoes="pecas">
+            <option value="">Selecione a peça...</option>
+          </select>
+          <input type="number" id="peca-qtd" min="1" value="1" aria-label="Quantidade">
+          <button type="button" id="peca-adicionar">Adicionar</button>
+        </div>
+        <ul id="pecas-lista"></ul>
+      </fieldset>
       <label class="inteiro">Relato do problema<textarea name="relato"></textarea></label>
       <button type="submit">Enviar</button>
     </form>

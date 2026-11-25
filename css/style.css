@@ -25,7 +25,7 @@ footer { text-align: center; font-size: .8rem; color: #616e7c; padding: 24px; }
 @media (max-width: 600px) { form { grid-template-columns: 1fr; } }
 
 /* Login e sessão */
-body.protegida main, body.protegida nav { visibility: hidden; } /* esconde até confirmar o login */
+body.protegida main, body.protegida nav { visibility: hidden; }
 main.login { max-width: 380px; }
 main.login form { grid-template-columns: 1fr; }
 nav li.usuario { margin-left: auto; display: flex; align-items: center; color: #fff; }
@@ -36,3 +36,22 @@ nav li.usuario span { padding: 10px 8px; font-size: .9rem; }
 .lista table { width: 100%; border-collapse: collapse; background: #fff; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,.1); font-size: .9rem; }
 .lista th, .lista td { padding: 8px 10px; text-align: left; border-bottom: 1px solid #e4e7eb; }
 .lista th { background: #1f3a5f; color: #fff; }
+
+/* Edição e exclusão */
+form.editando { outline: 3px solid #f0a500; }
+button.secundario { background: #e4e7eb; color: #1f2933; }
+.lista td.acoes { white-space: nowrap; }
+.lista button, #pecas-lista button { grid-column: auto; padding: 4px 10px; font-size: .85rem; margin-right: 4px; }
+button.excluir { background: #d64545; }
+button.excluir:hover { background: #a61b1b; color: #fff; }
+
+/* Peças da OS */
+#pecas-os { border: 1px solid #b8c2cc; border-radius: 4px; padding: 10px 12px; margin: 0; }
+#pecas-os legend { font-size: .9rem; font-weight: bold; padding: 0 4px; }
+.linha-peca { display: flex; gap: 8px; }
+.linha-peca select { flex: 1; min-width: 0; }
+.linha-peca input { width: 80px; }
+.linha-peca button { grid-column: auto; padding: 8px 14px; }
+#pecas-lista { list-style: none; margin: 10px 0 0; padding: 0; }
+#pecas-lista li { display: flex; justify-content: space-between; align-items: center; padding: 6px 0; border-bottom: 1px solid #e4e7eb; }
+#pecas-lista li.vazio { color: #616e7c; border: 0; }

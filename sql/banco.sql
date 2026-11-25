@@ -5,7 +5,7 @@
 
 SET client_encoding = 'UTF8';
 
--- Usuários que podem acessar o sistema (login).
+-- Usuários do sistema.
 CREATE TABLE IF NOT EXISTS usuario (
     id SERIAL PRIMARY KEY,
     nome VARCHAR(100) NOT NULL,
@@ -94,7 +94,7 @@ CREATE TABLE IF NOT EXISTS ordem_servico_peca (
     PRIMARY KEY (ordem_servico_id, peca_id)
 );
 
--- Tabela de serviços (antes ficava fixa no ordem.php).
+-- Serviços oferecidos.
 INSERT INTO servico (codigo, nome, valor_hora) VALUES
     ('revisao', 'Revisão preventiva', 120.00),
     ('freios', 'Troca de freios', 140.00),

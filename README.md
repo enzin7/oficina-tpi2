@@ -40,14 +40,22 @@ ordens.html         formulário de ordem de serviço -> php/ordem.php
 css/style.css       estilos
 js/app.js           login, checagem de sessão, envio via fetch, listas e selects vindos do banco
 php/funcoes.php     funções comuns (sessão, validação, CPF, placa, resposta JSON)
-php/conexao.php     conexão PDO com o PostgreSQL e helpers inserir()/buscar()
+php/conexao.php     conexão PDO com o PostgreSQL e helpers salvar()/buscar()/executar()
 php/sessao.php      informa se há usuário logado
 php/logout.php      encerra a sessão
 php/listar.php      últimos registros de cada tabela e opções dos <select>
+php/obter.php       um registro com os campos do formulário (para editar)
+php/excluir.php     exclusão de registros (OS devolve as peças ao estoque)
 sql/banco.sql       criação do banco, tabelas, serviços e usuário inicial
 docs/               questionários de desenvolvimento e comandos git
 ```
 O HTML fica separado do PHP: o JavaScript envia os dados com `fetch` e o PHP responde apenas JSON. Os dados são gravados no PostgreSQL com PDO e *prepared statements* (proteção contra SQL injection).
+
+## Editar e excluir
+Cada linha de "Últimos cadastros" tem **Editar** (carrega o registro no formulário; o mesmo PHP faz UPDATE quando recebe `id`) e **Excluir** (bloqueado se houver registros vinculados, ex.: cliente com veículos).
+
+## Peças na ordem de serviço
+Na OS as peças são escolhidas do estoque com quantidade. O PHP confere o estoque, usa o preço de venda da peça, grava em `ordem_servico_peca` e dá baixa no estoque, tudo em uma transação. Ao editar ou excluir a OS, as peças voltam ao estoque.
 
 ## Modelo de dados (`sql/banco.sql`)
 | Tabela | Campos principais | Relacionamentos |
@@ -68,4 +76,4 @@ O HTML fica separado do PHP: o JavaScript envia os dados com `fetch` e o PHP res
 | Veículo | CPF do dono, placa antiga/Mercosul, ano 1950–próximo ano, km ≥ 0 | identifica padrão da placa, média de km/ano e próxima revisão (a cada 10.000 km) |
 | Mecânico | CPF, especialidade da lista, valor/hora R$ 30–500, admissão não futura, telefone | tempo de casa, nível Júnior/Pleno/Sênior e estimativa mensal (176 h) |
 | Peça | código, custo > 0, margem 0–300%, quantidades inteiras | preço de venda, lucro por unidade e alerta/sugestão de reposição |
-| Ordem de Serviço | CPF, placa, serviço da tabela, datas coerentes, horas, peças, desconto ≤ 15% | orçamento (horas × valor/hora do serviço + peças − desconto) e prazo em dias |
+| Ordem de Serviço | CPF, placa, serviço da tabela, datas coerentes, horas, estoque das peças, desconto ≤ 15% | orçamento (horas × valor/hora do serviço + peças − desconto), baixa no estoque e prazo em dias |
